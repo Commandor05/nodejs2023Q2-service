@@ -6,6 +6,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { UpdateArtistDto } from '../dto/update-artist.dto';
 import { instanceToPlain } from 'class-transformer';
 import { Track } from 'src/track/entities/track.entity';
+import { Album } from 'src/album/entities/album.entity';
 
 export class Artist {
   static artists: Record<string, Artist> = {};
@@ -64,6 +65,7 @@ export class Artist {
     Artist.checkArtistIdExist(id);
 
     Artist.deleteArtistInTracks(id);
+    Artist.deleteArtistInAlbums(id);
     delete Artist.artists[id];
   }
 
@@ -71,6 +73,14 @@ export class Artist {
     Object.keys(Track.tracks).forEach((trackId) => {
       if (Track.tracks[trackId].artistId === artistId) {
         Track.tracks[trackId].artistId = null;
+      }
+    });
+  }
+
+  static deleteArtistInAlbums(artistId: string) {
+    Object.keys(Album.albums).forEach((albumId) => {
+      if (Album.albums[albumId].artistId === artistId) {
+        Album.albums[albumId].artistId = null;
       }
     });
   }
