@@ -8,7 +8,7 @@
 ## Downloading
 
 ```
-git clone {repository URL}
+git clone git@github.com:Commandor05/nodejs2023Q2-service.git
 ```
 
 ## Installing NPM modules
@@ -16,6 +16,14 @@ git clone {repository URL}
 ```
 npm install
 ```
+
+## Copy .env
+
+```
+cp .env.example .env
+```
+
+and change "PORT" inside .env if needed
 
 ## Running application
 
@@ -26,6 +34,12 @@ npm start
 After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
 For more information about OpenAPI/Swagger please visit https://swagger.io/.
+
+Or you can run application in development mode:
+
+```
+npm run start:dev
+```
 
 ## Testing
 
