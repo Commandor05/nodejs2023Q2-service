@@ -7,6 +7,7 @@ import { UpdateArtistDto } from '../dto/update-artist.dto';
 import { instanceToPlain } from 'class-transformer';
 import { Track } from 'src/track/entities/track.entity';
 import { Album } from 'src/album/entities/album.entity';
+import { Fav } from 'src/favs/entities/fav.entity';
 
 export class Artist {
   static artists: Record<string, Artist> = {};
@@ -66,6 +67,9 @@ export class Artist {
 
     Artist.deleteArtistInTracks(id);
     Artist.deleteArtistInAlbums(id);
+    try {
+      Fav.deleteEntity(id, 'artists');
+    } catch {}
     delete Artist.artists[id];
   }
 

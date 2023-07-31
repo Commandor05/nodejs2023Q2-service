@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { validate as isValidUUID } from 'uuid';
 import { UpdateTrackDto } from '../dto/update-track.dto';
 import { CreateTrackDto } from '../dto/create-track.dto';
+import { Fav } from 'src/favs/entities/fav.entity';
 
 export class Track {
   static tracks: Record<string, Track> = {};
@@ -66,6 +67,10 @@ export class Track {
 
   static delete(id: string) {
     Track.checkTrackIdExist(id);
+
+    try {
+      Fav.deleteEntity(id, 'tracks');
+    } catch {}
 
     delete Track.tracks[id];
   }

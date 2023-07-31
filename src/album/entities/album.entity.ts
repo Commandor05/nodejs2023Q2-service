@@ -6,6 +6,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { UpdateAlbumDto } from '../dto/update-album.dto';
 import { instanceToPlain } from 'class-transformer';
 import { Track } from 'src/track/entities/track.entity';
+import { Fav } from 'src/favs/entities/fav.entity';
 
 export class Album {
   static albums: Record<string, Album> = {};
@@ -66,6 +67,9 @@ export class Album {
     Album.checkAlbumIdExist(id);
 
     Album.deleteAlbumInTracks(id);
+    try {
+      Fav.deleteEntity(id, 'albums');
+    } catch {}
     delete Album.albums[id];
   }
 
