@@ -1,7 +1,6 @@
 FROM node:lts-bookworm as base
 WORKDIR /app
 COPY package*.json ./
-COPY prisma ./prisma/
 
 FROM base as main
 RUN npm ci --omit=dev
