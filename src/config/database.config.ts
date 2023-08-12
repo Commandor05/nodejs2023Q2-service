@@ -1,6 +1,5 @@
 import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-
 export default registerAs('database', (): TypeOrmModuleOptions => {
   return {
     type: 'postgres',
@@ -10,13 +9,15 @@ export default registerAs('database', (): TypeOrmModuleOptions => {
     username: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     database: process.env.POSTGRES_DB,
-
-    entities: ['**/*.entity{.ts,.js}'],
+    autoLoadEntities: true,
+    entities: [__dirname + 'dist/**/*.entity{.ts,.js}'],
 
     migrationsTableName: 'migration',
 
     migrations: ['src/migration/*.ts'],
 
     ssl: false,
+    synchronize: true,
+    dropSchema: true,
   };
 });
