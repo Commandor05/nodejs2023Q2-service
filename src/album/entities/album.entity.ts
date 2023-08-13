@@ -1,10 +1,9 @@
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { IsNotEmpty, IsNumber } from 'class-validator';
 import { instanceToPlain } from 'class-transformer';
 import { BaseEntity } from 'src/base/entities/base.entity';
-// import { Track } from 'src/track/entities/track.entity';
-// import { Fav } from 'src/favs/entities/fav.entity';
 import { Artist } from 'src/artist/entities/artist.entity';
+import { Track } from 'src/track/entities/track.entity';
 
 @Entity({ name: 'album' })
 export class Album extends BaseEntity {
@@ -18,7 +17,9 @@ export class Album extends BaseEntity {
   year: number;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  @ManyToOne((type) => Artist, (artist) => artist.albums)
+  @ManyToOne((type) => Artist, (artist) => artist.albums, {
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({
     name: 'artistId',
     referencedColumnName: 'id',
@@ -26,8 +27,12 @@ export class Album extends BaseEntity {
   })
   artist: Artist;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: true })
   artistId: string | null; // refers to Artist
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  @OneToMany((type) => Track, (track) => track.album)
+  tracks: Track[];
 
   toJSON() {
     return instanceToPlain(this);
