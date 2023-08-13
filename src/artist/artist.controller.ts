@@ -75,7 +75,7 @@ export class ArtistController {
   ) {
     const { affected } = await this.artistService.remove(id);
     if (affected === 0) {
-      throw new HttpException(`User not found`, HttpStatus.NOT_FOUND);
+      throw new HttpException(`Artist not found`, HttpStatus.NOT_FOUND);
     }
 
     return 'Deleted successfully';

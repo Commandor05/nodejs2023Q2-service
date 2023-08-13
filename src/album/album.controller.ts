@@ -76,7 +76,7 @@ export class AlbumController {
     const { affected } = await this.albumService.remove(id);
 
     if (affected === 0) {
-      throw new HttpException(`User not found`, HttpStatus.NOT_FOUND);
+      throw new HttpException(`Album not found`, HttpStatus.NOT_FOUND);
     }
 
     return 'Deleted successfully';

@@ -37,7 +37,7 @@ export class ArtistService {
     const artist = await this.artistRepository.findOneBy({ id });
 
     if (!artist) {
-      throw new HttpException(`User not found`, HttpStatus.NOT_FOUND);
+      throw new HttpException(`Artist not found`, HttpStatus.NOT_FOUND);
     }
     this.artistRepository.merge(artist, updateArtistDto);
     return this.artistRepository.save(artist);

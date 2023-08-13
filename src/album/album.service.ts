@@ -38,7 +38,7 @@ export class AlbumService {
     const album = await this.albumRepository.findOneBy({ id });
 
     if (!album) {
-      throw new HttpException(`User not found`, HttpStatus.NOT_FOUND);
+      throw new HttpException(`Album not found`, HttpStatus.NOT_FOUND);
     }
 
     this.albumRepository.merge(album, updateAlbumDto);
