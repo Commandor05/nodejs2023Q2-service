@@ -41,9 +41,6 @@ export class ArtistService {
     }
     this.artistRepository.merge(artist, updateArtistDto);
     return this.artistRepository.save(artist);
-    // }
-
-    //   return this.artistRepository.findOneBy({ id });
   }
 
   async remove(id: string) {
