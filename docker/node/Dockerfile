@@ -11,5 +11,5 @@ CMD ["npm", "start"]
 FROM base as dev
 RUN npm ci
 COPY . .
-EXPOSE 4000
+EXPOSE ${PORT}
 # CMD ["npm", "run", "start:dev"]
