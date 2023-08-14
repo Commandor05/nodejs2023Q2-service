@@ -40,6 +40,7 @@ services:
       - .env
     volumes:
       - postgres:/var/lib/postgresql/data
+      - pg-logs:/usr/local/var/log/postgres
     networks:
       - lib-net
     # environment:
@@ -65,3 +66,5 @@ networks:
 volumes:
   postgres:
     name: nest-db
+  pg-logs:
+    name: db-logs
