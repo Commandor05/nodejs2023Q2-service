@@ -25,20 +25,20 @@ cp .env.example .env
 
 and change "PORT" inside .env if needed
 
-## Running application
+## Run docker & start application
 
 ```
-npm start
+docker-compose up -d
 ```
 
 After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
 For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
-Or you can run application in development mode:
+## Apply initial migrations
 
 ```
-npm run start:dev
+docker exec nest-dc npm run migration:run
 ```
 
 ## Testing
@@ -48,25 +48,25 @@ After application running open new terminal and enter:
 To run all tests without authorization
 
 ```
-npm run test
+docker exec nest-dc npm run test
 ```
 
 To run only one of all test suites
 
 ```
-npm run test -- <path to suite>
+docker exec nest-dc npm run test -- <path to suite>
 ```
 
 To run all test with authorization
 
 ```
-npm run test:auth
+docker exec nest-dc npm run test:auth
 ```
 
 To run only specific test suite with authorization
 
 ```
-npm run test:auth -- <path to suite>
+docker exec nest-dc npm run test:auth -- <path to suite>
 ```
 
 ### Auto-fix and format
@@ -84,3 +84,24 @@ npm run format
 Press <kbd>F5</kbd> to debug.
 
 For more information, visit: https://code.visualstudio.com/docs/editor/debugging
+
+### Images on docker hub
+
+https://hub.docker.com/repository/docker/commandor05/service-postgres/general
+https://hub.docker.com/repository/docker/commandor05/service-nest/general
+
+### Run images scanning
+
+```
+docker scout recommendations commandor05/service-postgres
+docker scout quickview commandor05/service-postgres
+
+docker scout recommendations commandor05/service-nest
+docker scout quickview commandor05/service-nest
+```
+
+### Run sript for vulnerabilities scanning
+
+```
+npm run scan:critical
+```
