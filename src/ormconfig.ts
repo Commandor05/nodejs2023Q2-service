@@ -1,9 +1,13 @@
-import { ConfigModule } from '@nestjs/config';
-import databaseConfig from './config/database.config';
+import { DataSource, DataSourceOptions } from 'typeorm';
+import { databaseConfig } from './config/database.config';
 
-ConfigModule.forRoot({
-  isGlobal: true,
-  load: [databaseConfig],
-});
+const iniitDatabaseConfig = {
+  ...databaseConfig,
+  migrations: ['src/migrations/*{.ts,.js}'],
+  entities: ['src/**/*.entity{ .ts,.js}'],
+};
 
-export default databaseConfig();
+const ds = new DataSource(iniitDatabaseConfig as DataSourceOptions);
+ds.initialize();
+
+export default ds;
