@@ -42,7 +42,7 @@ export class AlbumController {
     const album = await this.albumService.findOne(id);
 
     if (!album) {
-      throw new HttpException(`User not found`, HttpStatus.NOT_FOUND);
+      throw new HttpException(`Album not found`, HttpStatus.NOT_FOUND);
     }
 
     return album;

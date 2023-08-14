@@ -1,10 +1,11 @@
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, ManyToMany } from 'typeorm';
 import { BaseEntity } from 'src/base/entities/base.entity';
 import { Artist } from 'src/artist/entities/artist.entity';
 import { instanceToPlain } from 'class-transformer';
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
 import { Album } from 'src/album/entities/album.entity';
+import { Fav } from 'src/favs/entities/fav.entity';
 
 @Entity({ name: 'track' })
 export class Track extends BaseEntity {
@@ -44,6 +45,12 @@ export class Track extends BaseEntity {
   @IsNumber()
   @Column({ type: 'int' })
   duration: number; // integer number
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  @ManyToMany((type) => Fav, (fav) => fav.tracks, {
+    onDelete: 'CASCADE',
+  })
+  favs: Fav[];
 
   toJSON() {
     return instanceToPlain(this);
