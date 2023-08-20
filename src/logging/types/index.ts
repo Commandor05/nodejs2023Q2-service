@@ -1,5 +1,5 @@
 export abstract class LogTransport {
-  abstract log(message: string): void;
+  abstract log(message: string, level?: loggerLevels): void;
 }
 
 export enum loggerTransports {

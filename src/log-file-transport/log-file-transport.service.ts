@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { LogTransport } from 'src/logging/types';
+import { LogTransport, loggerLevels } from 'src/logging/types';
 import {
   createWriteStream,
   existsSync,
@@ -17,9 +17,17 @@ export class LogFileTransportService extends LogTransport {
     super();
   }
 
-  log(message: string): void {
-    const logFileSiseKbytes = this.configService.get('logger.fileSize');
+  log(message: string, level?: loggerLevels): void {
     const destinationDir = '../../logs';
+    this.writeLogToFile(message, destinationDir);
+    if (level === loggerLevels.error) {
+      const errorsDestinationDir = '../../errors';
+      this.writeLogToFile(message, errorsDestinationDir);
+    }
+  }
+
+  writeLogToFile(message: string, destinationDir: string): void {
+    const logFileSiseKbytes = this.configService.get('logger.fileSize');
     const destinationDirPath = join(__dirname, destinationDir);
     if (!existsSync(destinationDirPath)) {
       mkdirSync(destinationDirPath);

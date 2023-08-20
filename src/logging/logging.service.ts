@@ -28,15 +28,15 @@ export class LoggingService {
     const date = new Date();
     const dateTimePrefix = ` - ${date.toLocaleString()}`;
 
-    this.dispatchLogToTransports(dateTimePrefix.concat(message));
+    this.dispatchLogToTransports(dateTimePrefix.concat(message), level);
   }
 
   warn(message: string) {
-    this.log(`[WARN:] ${message}`, loggerLevels.warn);
+    this.log(` [WARN:] ${message}`, loggerLevels.warn);
   }
 
   error(message: string) {
-    this.log(`[ERROR:] ${message}`, loggerLevels.error);
+    this.log(` [ERROR:] ${message}`, loggerLevels.error);
   }
 
   shadeBodyFields(body: Record<string, unknown>) {
@@ -50,10 +50,13 @@ export class LoggingService {
     return body;
   }
 
-  dispatchLogToTransports(message: string) {
+  dispatchLogToTransports(
+    message: string,
+    level: loggerLevels = loggerLevels.log,
+  ) {
     const activeLogTransports = this.configService.get('logger.transports');
     activeLogTransports.forEach((transport: LoggerTransport) => {
-      this.transportServicesMap[`${transport}`].log(message);
+      this.transportServicesMap[`${transport}`].log(message, level);
     });
   }
 }

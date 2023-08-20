@@ -15,6 +15,7 @@ services:
     volumes:
       - ./src:/app/src
       - ./logs:/app/logs
+      - ./errors:/app/errors
       # - ./prisma:/app/prisma
       # - ./test:/app/test
       # - ./doc:/app/doc
