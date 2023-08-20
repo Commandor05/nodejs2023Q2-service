@@ -7,9 +7,9 @@ import { LoggingService } from './logging/logging.service';
 export class LoggerMiddleware implements NestMiddleware {
   constructor(private loggingService: LoggingService) {}
   use(req: Request, res: Response, next: NextFunction) {
-    const { url, query, body, method } = req;
+    const { baseUrl, query, body, method } = req;
     const start = Date.now();
-    const message = `[Request]URL: ${url}, Method: ${method} , Query prams: ${JSON.stringify(
+    const message = `[Request]URL: ${baseUrl}, Method: ${method} , Query prams: ${JSON.stringify(
       query,
     )}, Body:${JSON.stringify(this.loggingService.shadeBodyFields(body))}`;
 
