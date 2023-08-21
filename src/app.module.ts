@@ -20,12 +20,14 @@ import { LogConsoleTransportModule } from './log-console-transport/log-console-t
 import loggerConfig from './config/logger.config';
 import { APP_FILTER } from '@nestjs/core';
 import { GeneralExceptionFilter } from './general-exception-filter.filter';
+import authConfig from './config/auth.config';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, loggerConfig],
+      load: [databaseConfig, loggerConfig, authConfig],
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -48,6 +50,7 @@ import { GeneralExceptionFilter } from './general-exception-filter.filter';
     AppService,
     AuthService,
     LoggingService,
+    JwtService,
     {
       provide: APP_FILTER,
       useClass: GeneralExceptionFilter,
