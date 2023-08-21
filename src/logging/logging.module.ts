@@ -6,5 +6,6 @@ import { LogFileTransportModule } from 'src/log-file-transport/log-file-transpor
 @Module({
   imports: [LogConsoleTransportModule, LogFileTransportModule],
   providers: [LoggingService],
+  exports: [LoggingService],
 })
 export class LoggingModule {}

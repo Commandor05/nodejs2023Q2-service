@@ -6,6 +6,7 @@ import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { ConfigService } from '@nestjs/config';
 import { UserTokenPayloadDto } from './dto/user-token-payload.dto';
 import { User } from 'src/user/entities/user.entity';
+import { LoggingService } from 'src/logging/logging.service';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +14,7 @@ export class AuthService {
     private readonly userService: UserService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private readonly loggingService: LoggingService,
   ) {}
 
   async login(loginUserDto: LoginUserDto) {
@@ -29,6 +31,8 @@ export class AuthService {
       password,
       salt,
     );
+
+    this.loggingService.warn(`User ${login} logged in`);
 
     if (currentPasswordHash !== passwordHash) {
       throw new HttpException(`Wrong password`, HttpStatus.FORBIDDEN);
@@ -56,6 +60,8 @@ export class AuthService {
       // it could be NOT_FOUND but in assugnment it's FORBIDDEN
       throw new HttpException(`User not found`, HttpStatus.FORBIDDEN);
     }
+
+    this.loggingService.warn(`Refrsh token generated for user: ${login}`);
 
     return this.getUserTokens(user);
   }
