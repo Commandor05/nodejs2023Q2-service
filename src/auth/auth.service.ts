@@ -3,12 +3,16 @@ import { UserService } from 'src/user/user.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { ConfigService } from '@nestjs/config';
+import { UserTokenPayloadDto } from './dto/user-token-payload.dto';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   async login(loginUserDto: LoginUserDto) {
@@ -30,10 +34,7 @@ export class AuthService {
       throw new HttpException(`Wrong password`, HttpStatus.FORBIDDEN);
     }
 
-    const payload = { sub: user.id, username: user.login };
-    const accessToken = await this.jwtService.signAsync(payload);
-
-    return { accessToken };
+    return this.getUserTokens(user);
   }
 
   async signup(createUserDto: CreateUserDto) {
@@ -45,5 +46,35 @@ export class AuthService {
     }
 
     return await this.userService.create(createUserDto);
+  }
+
+  async refrshToken(userTokenPayloadDto: UserTokenPayloadDto) {
+    const { login } = userTokenPayloadDto;
+
+    const user = await this.userService.findOneByLogin(login);
+    if (!user) {
+      // it could be NOT_FOUND but in assugnment it's FORBIDDEN
+      throw new HttpException(`User not found`, HttpStatus.FORBIDDEN);
+    }
+
+    return this.getUserTokens(user);
+  }
+
+  private async getUserTokens(user: User) {
+    const payload: UserTokenPayloadDto = {
+      userId: user.id,
+      login: user.login,
+    };
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload),
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('auth.jwtSecretRefreshKey'),
+        expiresIn: this.configService.get<string>(
+          'auth.tokenRefreshExpireTime',
+        ),
+      }),
+    ]);
+
+    return { accessToken, refreshToken };
   }
 }

@@ -189,6 +189,35 @@ paths:
           description: Bad request
         409:
           description: Conflict. Login already exists
+  /auth/refresh:
+    post:
+      tags:
+        - Refresh
+      security: []
+      summary: Refresh
+      description: Refresh tocken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              title: example
+              properties:
+                refreshToken:
+                  type: string
+                  minLength: 3
+                  maxLength: 255
+                  description: Refresh Token
+              required:
+                - refreshToken
+      responses:
+        201:
+          description: Success
+        401:
+          description: Unauthorized
+        404:
+          description: User not found
   /user:
     get:
       tags:
