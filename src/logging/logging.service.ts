@@ -41,13 +41,14 @@ export class LoggingService {
 
   shadeBodyFields(body: Record<string, unknown>) {
     const shadowFields = this.configService.get('logger.shadowFields');
-    for (const key of Object.keys(body)) {
+    const clonedBody = { ...body };
+    for (const key of Object.keys(clonedBody)) {
       if (shadowFields.includes(key)) {
-        body[key] = '*****';
+        clonedBody[key] = '*****';
       }
     }
 
-    return body;
+    return clonedBody;
   }
 
   dispatchLogToTransports(
