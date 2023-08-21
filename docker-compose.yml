@@ -18,7 +18,7 @@ services:
       - ./errors:/app/errors
       # - ./prisma:/app/prisma
       # - ./test:/app/test
-      # - ./doc:/app/doc
+      - ./doc:/app/doc
     depends_on:
       - postgres
     env_file:
