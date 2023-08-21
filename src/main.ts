@@ -15,12 +15,12 @@ async function bootstrap() {
   const logger = app.get<LoggingService>(LoggingService);
   app.useGlobalFilters(new GeneralExceptionFilter(httpAdapter, logger));
 
-  process.on('unhandledRejection', (reason, promise) => {
-    logger.error(`[Unhandled Rejection] ${promise}, 'reason:', ${reason}`);
-  });
-
   process.on('uncaughtExceptionMonitor', (error, origin) => {
     logger.error(`[Uncaught Exception] ${error}, 'origin:', ${origin}`);
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    logger.error(`[Unhandled Rejection] ${promise}, 'reason:', ${reason}`);
   });
 
   const openApiDoc = swaggerConf() as unknown as OpenAPIObject;
