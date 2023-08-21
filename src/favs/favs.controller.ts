@@ -6,6 +6,7 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { FavsService } from './favs.service';
 
@@ -14,45 +15,93 @@ export class FavsController {
   constructor(private readonly favsService: FavsService) {}
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.favsService.findAll();
   }
 
   @Post('/track/:id')
-  addTrack(@Param('id') id: string) {
+  async addTrack(
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+      }),
+    )
+    id: string,
+  ) {
     return this.favsService.addTrack(id);
   }
 
   @Post('/album/:id')
-  addAlbum(@Param('id') id: string) {
+  async addAlbum(
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+      }),
+    )
+    id: string,
+  ) {
     return this.favsService.addAlbum(id);
   }
 
   @Post('/artist/:id')
-  addArtist(@Param('id') id: string) {
+  async addArtist(
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+      }),
+    )
+    id: string,
+  ) {
     return this.favsService.addArtist(id);
   }
 
   @Delete('/track/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeTrack(@Param('id') id: string) {
-    this.favsService.removeTrack(id);
+  async removeTrack(
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+      }),
+    )
+    id: string,
+  ) {
+    await this.favsService.removeTrack(id);
 
     return 'Deleted successfully';
   }
 
   @Delete('/artist/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeArtist(@Param('id') id: string) {
-    this.favsService.removeArtist(id);
+  async removeArtist(
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+      }),
+    )
+    id: string,
+  ) {
+    await this.favsService.removeArtist(id);
 
     return 'Deleted successfully';
   }
 
   @Delete('/album/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeAlbum(@Param('id') id: string) {
-    this.favsService.removeAlbum(id);
+  async removeAlbum(
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+      }),
+    )
+    id: string,
+  ) {
+    await this.favsService.removeAlbum(id);
 
     return 'Deleted successfully';
   }

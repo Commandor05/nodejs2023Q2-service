@@ -1,112 +1,76 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Entity,
+  Column,
+  ManyToMany,
+  JoinTable,
+  PrimaryGeneratedColumn,
+  PrimaryColumn,
+  Unique,
+} from 'typeorm';
 import { Album } from 'src/album/entities/album.entity';
 import { Artist } from 'src/artist/entities/artist.entity';
 import { Track } from 'src/track/entities/track.entity';
-import { validate as isValidUUID } from 'uuid';
+import { Exclude, instanceToPlain } from 'class-transformer';
 
-type favType = keyof typeof Fav.favs;
+export enum FavCategory {
+  ARTISTS = 'artists',
+  ALBUMS = 'albums',
+  TRACKS = 'tracks',
+}
 
+@Entity({ name: 'fav' })
 export class Fav {
-  static favs = {
-    artists: new Map<string, Artist>(),
-    albums: new Map<string, Album>(),
-    tracks: new Map<string, Track>(),
-  };
+  @Exclude()
+  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  static addEntity(id: string, type: favType) {
-    switch (type) {
-      case 'artists':
-        try {
-          const arist = Artist.find(id);
-          Fav.favs[type].set(id, arist);
-        } catch (e) {
-          Fav.transformAddingError(
-            e,
-            "Artist with id doesn't exist.",
-            HttpStatus.NOT_FOUND,
-            HttpStatus.UNPROCESSABLE_ENTITY,
-          );
-        }
-        break;
-      case 'albums':
-        try {
-          const album = Album.find(id);
-          Fav.favs[type].set(id, album);
-        } catch (e) {
-          Fav.transformAddingError(
-            e,
-            "Album with id doesn't exist.",
-            HttpStatus.NOT_FOUND,
-            HttpStatus.UNPROCESSABLE_ENTITY,
-          );
-        }
-        break;
-      case 'tracks':
-        try {
-          const track = Track.find(id);
-          Fav.favs[type].set(id, track);
-        } catch (e) {
-          Fav.transformAddingError(
-            e,
-            "Track with id doesn't exist.",
-            HttpStatus.NOT_FOUND,
-            HttpStatus.UNPROCESSABLE_ENTITY,
-          );
-          throw e;
-        }
-        break;
-      default:
-        throw new HttpException(
-          "Fav entity doesn't exist",
-          HttpStatus.BAD_REQUEST,
-        );
+  @Column({
+    type: 'enum',
+    enum: FavCategory,
+  })
+  @PrimaryColumn()
+  @Unique(['category', 'id'])
+  @Exclude()
+  category: FavCategory;
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  @ManyToMany((type) => Artist, (artist) => artist.favs)
+  @JoinTable()
+  artists: Artist[];
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  @ManyToMany((type) => Album, (albums) => albums.favs)
+  @JoinTable()
+  albums: Album[];
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  @ManyToMany((type) => Track, (track) => track.favs)
+  @JoinTable()
+  tracks: Track[];
+
+  addArtistToFav(artist: Artist) {
+    if (!this.artists) {
+      this.artists = new Array<Artist>();
     }
+    this.artists.push(artist);
   }
 
-  static transformAddingError(
-    e: HttpException,
-    message: string,
-    originalCode: HttpStatus,
-    newCode: HttpStatus,
-  ) {
-    if (!(e.getStatus() === originalCode)) {
-      throw e;
+  addAlbumToFav(album: Album) {
+    if (!this.albums) {
+      this.albums = new Array<Album>();
     }
-    throw new HttpException(message, newCode);
+    this.albums.push(album);
   }
 
-  static deleteEntity(id: string, type: favType) {
-    if (!isValidUUID(id)) {
-      throw new HttpException(
-        `Bad request. ${type}Id is invalid (not uuid)`,
-        HttpStatus.BAD_REQUEST,
-      );
+  addTrackToFav(track: Track) {
+    if (!this.tracks) {
+      this.tracks = new Array<Track>();
     }
-
-    switch (type) {
-      case 'artists':
-      case 'tracks':
-      case 'albums':
-        const title = type[0].toUpperCase() + type.slice(1);
-        if (!Fav.favs[type].delete(id)) {
-          throw new HttpException(
-            `${title} was not found.`,
-            HttpStatus.NOT_FOUND,
-          );
-        }
-        break;
-      default:
-        throw new HttpException(
-          "Fav entity doesn't exist",
-          HttpStatus.BAD_REQUEST,
-        );
-    }
+    this.tracks.push(track);
   }
 
-  static list() {
-    return Object.entries(Fav.favs).reduce((acc, [key, entity]) => {
-      acc[key] = [...entity.values()];
-      return acc;
-    }, {});
+  toJSON() {
+    return instanceToPlain(this);
   }
 }

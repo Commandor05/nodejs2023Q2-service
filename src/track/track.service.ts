@@ -1,8 +1,12 @@
 import {
   ClassSerializerInterceptor,
+  HttpException,
+  HttpStatus,
   Injectable,
   UseInterceptors,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { Track } from './entities/track.entity';
@@ -10,23 +14,38 @@ import { Track } from './entities/track.entity';
 @UseInterceptors(ClassSerializerInterceptor)
 @Injectable()
 export class TrackService {
-  create(createTrackDto: CreateTrackDto) {
-    return new Track(createTrackDto);
+  constructor(
+    @InjectRepository(Track)
+    private trackRepository: Repository<Track>,
+  ) {}
+
+  async create(createTrackDto: CreateTrackDto) {
+    const track = this.trackRepository.create(createTrackDto);
+    const savedTrack = await this.trackRepository.save(track);
+
+    return savedTrack;
   }
 
-  findAll() {
-    return Track.list();
+  async findAll() {
+    return this.trackRepository.find();
   }
 
-  findOne(id: string) {
-    return Track.find(id);
+  async findOne(id: string) {
+    return this.trackRepository.findOneBy({ id });
   }
 
-  update(id: string, updateTrackDto: UpdateTrackDto) {
-    return Track.update(id, updateTrackDto);
+  async update(id: string, updateTrackDto: UpdateTrackDto) {
+    const track = await this.trackRepository.findOneBy({ id });
+
+    if (!track) {
+      throw new HttpException(`Album not found`, HttpStatus.NOT_FOUND);
+    }
+
+    this.trackRepository.merge(track, updateTrackDto);
+    return this.trackRepository.save(track);
   }
 
-  remove(id: string) {
-    return Track.delete(id);
+  async remove(id: string) {
+    return this.trackRepository.delete(id);
   }
 }

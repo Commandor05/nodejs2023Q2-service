@@ -1,0 +1,70 @@
+version: '3.0'
+
+services:
+  nest:
+    # image: commandor05/node
+    container_name: nest-dc
+    command: sh -c "npm run start:dev"
+    build: 
+      context: .
+      dockerfile: ./docker/node/Dockerfile
+      target: dev
+    ports:
+      - ${PORT}:${PORT}
+    working_dir: /app
+    volumes:
+      - ./src:/app/src
+      # - ./prisma:/app/prisma
+      # - ./test:/app/test
+      # - ./doc:/app/doc
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - lib-net
+    # environment:
+      # - name=value
+  postgres:
+           #commandor05/postgres
+    # image: postgres:15-bookworm
+    build: 
+      context: .
+      dockerfile: ./docker/postgres/Dockerfile
+    container_name: postgres-dc
+    restart: always
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    env_file:
+      - .env
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - pg-logs:/usr/local/var/log/postgres
+    networks:
+      - lib-net
+    # environment:
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    container_name: nest-pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - '5050:80'
+    depends_on:
+      - postgres
+    networks:
+      - lib-net
+      
+networks:
+  lib-net:
+    name: lib-net_custom
+    driver: bridge
+volumes:
+  postgres:
+    name: nest-db
+  pg-logs:
+    name: db-logs

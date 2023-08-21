@@ -1,8 +1,12 @@
 import {
   ClassSerializerInterceptor,
+  HttpException,
+  HttpStatus,
   Injectable,
   UseInterceptors,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { Album } from './entities/album.entity';
@@ -10,23 +14,38 @@ import { Album } from './entities/album.entity';
 @UseInterceptors(ClassSerializerInterceptor)
 @Injectable()
 export class AlbumService {
-  create(createAlbumDto: CreateAlbumDto) {
-    return new Album(createAlbumDto);
+  constructor(
+    @InjectRepository(Album)
+    private albumRepository: Repository<Album>,
+  ) {}
+
+  async create(createAlbumDto: CreateAlbumDto) {
+    const album = this.albumRepository.create(createAlbumDto);
+    const savedAlbum = await this.albumRepository.save(album);
+
+    return savedAlbum;
   }
 
-  findAll() {
-    return Album.list();
+  async findAll() {
+    return this.albumRepository.find();
   }
 
-  findOne(id: string) {
-    return Album.find(id);
+  async findOne(id: string) {
+    return this.albumRepository.findOneBy({ id });
   }
 
-  update(id: string, updateAlbumDto: UpdateAlbumDto) {
-    return Album.update(id, updateAlbumDto);
+  async update(id: string, updateAlbumDto: UpdateAlbumDto) {
+    const album = await this.albumRepository.findOneBy({ id });
+
+    if (!album) {
+      throw new HttpException(`Album not found`, HttpStatus.NOT_FOUND);
+    }
+
+    this.albumRepository.merge(album, updateAlbumDto);
+    return this.albumRepository.save(album);
   }
 
-  remove(id: string) {
-    return Album.delete(id);
+  async remove(id: string) {
+    return this.albumRepository.delete(id);
   }
 }

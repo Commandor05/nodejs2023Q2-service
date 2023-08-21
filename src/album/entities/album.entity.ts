@@ -1,95 +1,52 @@
-import { IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
-import { v4 as uuidv4 } from 'uuid';
-import { validate as isValidUUID } from 'uuid';
-import { CreateAlbumDto } from '../dto/create-album.dto';
-import { HttpException, HttpStatus } from '@nestjs/common';
-import { UpdateAlbumDto } from '../dto/update-album.dto';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+  ManyToMany,
+} from 'typeorm';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 import { instanceToPlain } from 'class-transformer';
+import { BaseEntity } from 'src/base/entities/base.entity';
+import { Artist } from 'src/artist/entities/artist.entity';
 import { Track } from 'src/track/entities/track.entity';
 import { Fav } from 'src/favs/entities/fav.entity';
 
-export class Album {
-  static albums: Record<string, Album> = {};
-
-  @IsUUID()
-  id: string; // uuid v4
+@Entity({ name: 'album' })
+export class Album extends BaseEntity {
   @IsNotEmpty()
+  @Column({ type: 'varchar', length: 300 })
   name: string;
 
   @IsNotEmpty()
   @IsNumber()
+  @Column({ type: 'int' })
   year: number;
 
-  artistId: string | null; // refers to Album
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  @ManyToOne((type) => Artist, (artist) => artist.albums, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({
+    name: 'artistId',
+    referencedColumnName: 'id',
+    foreignKeyConstraintName: 'fk_artist_id',
+  })
+  artist: Artist;
 
-  constructor({ name, year, artistId }: CreateAlbumDto) {
-    this.id = uuidv4();
-    this.name = name;
-    this.year = year;
-    this.artistId = artistId;
+  @Column({ type: 'uuid', nullable: true })
+  artistId: string | null; // refers to Artist
 
-    this.save();
-  }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  @OneToMany((type) => Track, (track) => track.album)
+  tracks: Track[];
 
-  public save() {
-    Album.albums[this.id] = this;
-    return this;
-  }
-
-  static isAlbumExist(id: string): boolean {
-    if (!isValidUUID(id)) {
-      throw new HttpException(
-        'Bad request. AlbumId is invalid (not uuid)',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    return !!Album.albums[id];
-  }
-
-  static checkAlbumIdExist(id: string) {
-    if (!Album.isAlbumExist(id)) {
-      throw new HttpException('Album was not found.', HttpStatus.NOT_FOUND);
-    }
-    return true;
-  }
-
-  static update(id: string, updateAlbumDto: UpdateAlbumDto) {
-    Album.checkAlbumIdExist(id);
-
-    Object.keys(updateAlbumDto).forEach((key) => {
-      Album.albums[id][key] = updateAlbumDto[key];
-    });
-
-    return Album.albums[id];
-  }
-
-  static delete(id: string) {
-    Album.checkAlbumIdExist(id);
-
-    Album.deleteAlbumInTracks(id);
-    try {
-      Fav.deleteEntity(id, 'albums');
-    } catch {}
-    delete Album.albums[id];
-  }
-
-  static deleteAlbumInTracks(albumId: string) {
-    Object.keys(Track.tracks).forEach((trackId) => {
-      if (Track.tracks[trackId].albumId === albumId) {
-        Track.tracks[trackId].albumId = null;
-      }
-    });
-  }
-
-  static find(id: string) {
-    Album.checkAlbumIdExist(id);
-
-    return Album.albums[id];
-  }
-
-  static list(): Album[] {
-    return Object.values(Album.albums);
-  }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  @ManyToMany((type) => Fav, (fav) => fav.albums, {
+    onDelete: 'CASCADE',
+  })
+  favs: Fav[];
 
   toJSON() {
     return instanceToPlain(this);
