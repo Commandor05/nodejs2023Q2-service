@@ -9,7 +9,11 @@ export class User extends BaseEntity {
 
   @Exclude({ toPlainOnly: true })
   @Column({ type: 'varchar', length: 300 })
-  password: string;
+  hash: string;
+
+  @Exclude({ toPlainOnly: true })
+  @Column({ type: 'varchar', length: 255 })
+  salt: string;
 
   @Column({ type: 'int', default: 1 })
   version: number; // integer number, increments on update
