@@ -7,7 +7,6 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { Request as Req } from 'express';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -34,11 +33,12 @@ export class AuthController {
   @UseGuards(AuthRefreshGuard)
   @Post('/refresh')
   async refresh(@Request() req: Request) {
-    console.log('user', req['user']);
     const user = req['user'];
+
     if (!user) {
       throw new HttpException(`User not found`, HttpStatus.NOT_FOUND);
     }
+
     return this.authService.refrshToken(user);
   }
 }
